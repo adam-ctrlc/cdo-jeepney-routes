@@ -496,7 +496,7 @@ watch(
         @update-finder-point="updateFinderPoint"
       />
       <div v-if="isDisclaimerVisible" class="map-disclaimer" role="note">
-        <span>Route data may be incomplete or outdated. Verify with actual jeepney signage, drivers, and current local transport advisories.</span>
+        <span>This map shows CDO LPTRP reference routes. Actual jeepney operations may still follow existing/status quo routes. Verify with jeepney signage, drivers, and current local transport advisories.</span>
         <button
           class="map-disclaimer-close"
           type="button"
@@ -540,8 +540,9 @@ watch(
         <p class="eyebrow">CDO LPTRP route data</p>
         <h2 id="about-title">About This Map</h2>
         <p>
-          This map displays Cagayan de Oro jeepney routes from local JSON data
-          using Leaflet and OpenStreetMap tiles.
+          This map displays CDO Local Public Transport Route Plan route data
+          for reference using Leaflet and OpenStreetMap tiles. It is not a live
+          map of currently operating jeepney routes.
         </p>
         <p>
           All route data is taken from the
