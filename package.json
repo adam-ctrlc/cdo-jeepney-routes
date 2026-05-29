@@ -1,0 +1,21 @@
+{
+  "name": "cdo-jeepney-routes",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "import:routes": "node scripts/import-routes.js --write",
+    "import:routes:dry": "node scripts/import-routes.js --dry-run"
+  },
+  "dependencies": {
+    "vue": "^3.5.14",
+    "leaflet": "^1.9.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.4",
+    "vite": "^6.3.5"
+  }
+}
