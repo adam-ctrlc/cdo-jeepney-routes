@@ -34,6 +34,27 @@ export default defineNuxtConfig({
     }
   },
 
+  modules: ['@vite-pwa/nuxt'],
+
+  pwa: {
+    // GitHub Pages serves static files and ignores Cache-Control headers, so a
+    // service worker is the only way to durably cache the app shell + assets
+    // (logo, favicons, fonts). The SW auto-updates on each new deploy.
+    registerType: 'autoUpdate',
+    // We already ship a hand-authored manifest + icons (referenced in app.head
+    // below), so don't let the module generate or inject a second one.
+    manifest: false,
+    workbox: {
+      // Precache the shell and static assets. routes.json (~7.6 MB) is left out
+      // on purpose — it's handled by the Cache API in useRouteExplorer and far
+      // exceeds the precache size limit anyway.
+      globPatterns: ['**/*.{js,css,html,png,ico,svg,woff,woff2,webmanifest}'],
+      navigateFallback: '/'
+    },
+    // Keep the SW out of `nuxt dev` so it can't serve stale assets while coding.
+    devOptions: { enabled: false }
+  },
+
   // Atomic Design: components live in atoms/molecules/organisms/templates
   // subfolders but are referenced by bare filename (no directory prefix).
   components: [{ path: '~/components', pathPrefix: false }],
