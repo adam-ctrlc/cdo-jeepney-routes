@@ -4,6 +4,11 @@ Thanks for helping improve **CDO Jeepney Routes**! This is a community reference
 map, so accuracy and clarity matter most. The two most useful contributions are
 **route-data corrections** and **bug fixes / UX improvements**.
 
+> **You can also contribute to the original project.** This repository is a fork
+> of [jrequiroso/cdo-jeepney-routes](https://github.com/jrequiroso/cdo-jeepney-routes).
+> If your change (especially a route-data fix) is relevant upstream, please
+> consider opening a pull request or issue there too, so everyone benefits.
+
 ## Getting started
 
 Prerequisites: **Node 20+** (the repo pins **22** via `.nvmrc`) and **pnpm**.
