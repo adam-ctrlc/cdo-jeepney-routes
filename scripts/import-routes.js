@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 const rootDir = process.cwd()
-const rawDir = path.join(rootDir, 'raw_kml')
+const sourceDir = path.join(rootDir, 'route-sources')
 const outputPath = path.join(rootDir, 'public', 'data', 'routes.json')
 const shouldWrite = process.argv.includes('--write')
 
@@ -104,7 +104,7 @@ function listFiles(dir, extension) {
 }
 
 function readDescriptionBlocks() {
-  const files = listFiles(rawDir, 'route-descriptions.txt')
+  const files = listFiles(sourceDir, 'route-descriptions.txt')
   const blocks = []
 
   for (const file of files) {
@@ -200,7 +200,9 @@ function parseKml(file) {
         placemark.match(/<coordinates>([\s\S]*?)<\/coordinates>/i)?.[1]
       )[0]
       return {
-        name: cleanPointName(decodeXml(placemark.match(/<name>([\s\S]*?)<\/name>/i)?.[1])),
+        name: cleanPointName(
+          decodeXml(placemark.match(/<name>([\s\S]*?)<\/name>/i)?.[1])
+        ),
         lat: point?.[0],
         lng: point?.[1]
       }
@@ -269,7 +271,10 @@ function routeNameFromTitle(title, code) {
     .trim()
 
   return normalized.startsWith(code)
-    ? normalized.slice(code.length).replace(/^[-\s]+/, '').trim() || normalized
+    ? normalized
+        .slice(code.length)
+        .replace(/^[-\s]+/, '')
+        .trim() || normalized
     : normalized
 }
 
@@ -304,9 +309,7 @@ function buildRoute(kml, description, index) {
     landmarks: allStreets,
     transferPoints: inferTransferPoints(allStreets),
     inbound: {
-      summary: `${inboundStreets[0] ?? code} to ${
-        inboundStreets.at(-1) ?? name
-      }`,
+      summary: `${inboundStreets[0] ?? code} to ${inboundStreets.at(-1) ?? name}`,
       streets: inboundStreets
     },
     outbound: {
@@ -326,10 +329,7 @@ function buildRoute(kml, description, index) {
 }
 
 function fallbackStreets(title) {
-  return normalizeText(title)
-    .split(' - ')
-    .map(cleanStreet)
-    .filter(Boolean)
+  return normalizeText(title).split(' - ').map(cleanStreet).filter(Boolean)
 }
 
 function inferAreas(title, streets) {
@@ -385,9 +385,7 @@ function inferStopType(value) {
 }
 
 function buildNotes(kml, description) {
-  const notes = [
-    `Imported from ${path.relative(rootDir, kml.file).replace(/\\/g, '/')}.`
-  ]
+  const notes = [`Imported from ${path.relative(rootDir, kml.file).replace(/\\/g, '/')}.`]
 
   if (!description) {
     notes.push('No matching route description block was found; verify metadata.')
@@ -405,12 +403,12 @@ function buildNotes(kml, description) {
 }
 
 function main() {
-  if (!fs.existsSync(rawDir)) {
-    throw new Error(`Missing raw KML directory: ${rawDir}`)
+  if (!fs.existsSync(sourceDir)) {
+    throw new Error(`Missing route source directory: ${sourceDir}`)
   }
 
   const descriptions = readDescriptionBlocks()
-  const kmlFiles = listFiles(rawDir, '.kml').sort((a, b) => a.localeCompare(b))
+  const kmlFiles = listFiles(sourceDir, '.kml').sort((a, b) => a.localeCompare(b))
   const routes = []
   const warnings = []
 
@@ -453,9 +451,8 @@ function main() {
         notYetOperational: routes.filter(
           (route) => route.status === 'not-yet-operational'
         ).length,
-        forClarification: routes.filter(
-          (route) => route.status === 'for-clarification'
-        ).length,
+        forClarification: routes.filter((route) => route.status === 'for-clarification')
+          .length,
         warnings
       },
       null,

@@ -1,0 +1,138 @@
+/*
+ * Tailwind v4 entry. The whole UI is built from utility classes in the
+ * components; this file only holds the engine import, the quark tokens, the
+ * dark-mode variant, and styling for Leaflet-injected DOM (markers, tooltips,
+ * popups, step labels) which is created in JS and can't take utility classes.
+ */
+@import 'tailwindcss';
+@import '../quarks/tokens.css';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/*
+ * Barabara — display face used for the CDO brand and headings. It is a
+ * personal-use font not available on any web-font CDN, so it loads from
+ * /public/fonts/ (drop the file there). Until then, `font-display: swap` falls
+ * back to Helvetica. See public/fonts/README.md.
+ */
+@font-face {
+  font-family: 'Barabara';
+  src: url('/fonts/Barabara.woff') format('woff');
+  font-weight: 400 900;
+  font-display: swap;
+}
+
+@layer base {
+  body {
+    @apply bg-bg text-text antialiased;
+  }
+}
+
+/* --- Leaflet-injected DOM ------------------------------------------------ */
+.route-point-marker {
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: #fff;
+  font-weight: 800;
+  cursor: grab;
+  box-shadow: 0 8px 20px rgba(11, 25, 21, 0.22);
+}
+.route-point-marker:active {
+  cursor: grabbing;
+}
+.route-point-marker span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+}
+.start-marker span {
+  background: #9a6a06;
+}
+.destination-marker span {
+  background: #cf4f2f;
+}
+.transfer-marker span {
+  background: #6a45c6;
+}
+
+.route-step-label {
+  pointer-events: none;
+}
+.route-step-label span {
+  display: inline-block;
+  max-width: 118px;
+  padding: 4px 7px;
+  border: 1px solid rgba(154, 106, 6, 0.3);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #0b1915;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  box-shadow: 0 8px 20px rgba(11, 25, 21, 0.16);
+}
+[data-theme='dark'] .route-step-label span {
+  border-color: #49645c;
+  background: rgba(18, 26, 24, 0.96);
+  color: #f4fbf8;
+}
+
+.route-hover-tooltip {
+  width: 240px;
+  max-width: min(240px, calc(100vw - 32px));
+  padding: 7px 9px;
+  border: 1px solid rgba(154, 106, 6, 0.32);
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(11, 25, 21, 0.14);
+  color: #0b1915;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.25;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+.route-hover-tooltip strong {
+  display: inline;
+}
+.route-hover-tooltip em {
+  display: block;
+  margin-top: 2px;
+  color: #50635d;
+  font-size: 0.72rem;
+  font-style: normal;
+}
+[data-theme='dark'] .route-hover-tooltip {
+  border-color: #49645c;
+  background: #121a18;
+  color: #f4fbf8;
+}
+[data-theme='dark'] .route-hover-tooltip em {
+  color: #b9ccc6;
+}
+
+.route-popup strong,
+.route-popup em,
+.route-popup span,
+.route-popup small {
+  display: block;
+}
+.route-popup em {
+  margin-top: 3px;
+  color: var(--color-accent);
+  font-style: normal;
+  font-weight: 700;
+}
+.route-popup span {
+  margin-top: 4px;
+}
+.route-popup small {
+  margin-top: 5px;
+  color: var(--color-muted);
+}

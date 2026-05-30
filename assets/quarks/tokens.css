@@ -1,0 +1,50 @@
+/*
+ * Quarks — design tokens, expressed as the Tailwind v4 theme.
+ *
+ * Tokens declared in `@theme` become both CSS custom properties and Tailwind
+ * utilities (e.g. `--color-accent` → `bg-accent`/`text-accent`). The dark theme
+ * re-assigns the same custom properties under [data-theme="dark"], so every
+ * token-based utility flips automatically without per-element `dark:` variants.
+ *
+ * Palette: Cagayan de Oro's "City of Golden Friendship" — warm ivory neutrals
+ * with a gold/amber accent. Helvetica for UI text, Barabara for display headings.
+ */
+@theme {
+  --font-sans: Helvetica, 'Helvetica Neue', Arial, ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Barabara', Helvetica, 'Helvetica Neue', Arial, sans-serif;
+
+  /* The responsive breakpoint where the sidebar becomes a mobile drawer. */
+  --breakpoint-nav: 50rem;
+
+  --color-bg: #f4f5f6;
+  --color-surface: #ffffff;
+  --color-surface-muted: #eceef0;
+  --color-text: #1f2125;
+  --color-muted: #5f6570;
+  --color-border: #e1e4e7;
+  --color-accent: #9a6a06;
+  --color-accent-strong: #6d4d05;
+  --color-warning-bg: #fff2cf;
+  --color-warning-text: #5f4700;
+
+  --shadow-card: 0 12px 30px rgba(20, 26, 34, 0.12);
+}
+
+:root {
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --color-bg: #15161a;
+  --color-surface: #1e2024;
+  --color-surface-muted: #282b30;
+  --color-text: #edeef0;
+  --color-muted: #9aa0aa;
+  --color-border: #343740;
+  --color-accent: #e6bd4f;
+  --color-accent-strong: #f3d684;
+  --color-warning-bg: #352b15;
+  --color-warning-text: #ffe3a1;
+  --shadow-card: 0 12px 30px rgba(0, 0, 0, 0.5);
+}

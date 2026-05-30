@@ -30,7 +30,7 @@ Each route includes metadata, stops, transfer points, inbound and outbound stree
 
 ## Import Route Data
 
-Raw source files can be placed under `raw_kml/<district>/` with one `route-descriptions.txt` file per district and matching `.kml` files.
+Raw source files can be placed under `route-sources/<district>/` with one `route-descriptions.txt` file per district and matching `.kml` files.
 
 Preview an import without changing `routes.json`:
 
