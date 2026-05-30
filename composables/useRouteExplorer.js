@@ -18,6 +18,10 @@ import {
   getRoutePathOptions
 } from '~/lib/geo'
 
+// Cache API bucket for the routes file. Bump the version suffix whenever the
+// shape of routes.json changes in a way that old cached copies can't satisfy.
+const ROUTES_CACHE = 'cdo-jeep-routes-v1'
+
 /**
  * useRouteExplorer — owns all application state and behaviour for the route
  * explorer (route list, map selection and the trip finder). The page is purely
@@ -438,6 +442,44 @@ export function useRouteExplorer() {
     }
   }
 
+  // Load the (static, serverless-hosted) routes file with a stale-while-
+  // revalidate strategy backed by the Cache API: serve the cached copy instantly
+  // on repeat visits while a background fetch silently refreshes the cache for
+  // next time. Falls back to a plain network fetch wherever the Cache API is
+  // absent or blocked (insecure context, private mode), so behaviour degrades to
+  // exactly what it was before.
+  async function loadRoutesJson(url) {
+    try {
+      if (typeof caches !== 'undefined') {
+        const cache = await caches.open(ROUTES_CACHE)
+        const cached = await cache.match(url)
+        const revalidate = fetch(url).then((response) => {
+          if (response.ok) cache.put(url, response.clone())
+          return response
+        })
+
+        if (cached) {
+          // Don't let a failed background refresh surface as an unhandled
+          // rejection — the cached copy is already good enough for this visit.
+          revalidate.catch(() => {})
+          return cached.json()
+        }
+
+        const response = await revalidate
+        if (!response.ok) throw new Error(`Unable to load routes: ${response.status}`)
+        return response.json()
+      }
+    } catch (error) {
+      if (import.meta.dev) {
+        console.warn('[routes] cache unavailable, fetching directly', error)
+      }
+    }
+
+    const response = await fetch(url)
+    if (!response.ok) throw new Error(`Unable to load routes: ${response.status}`)
+    return response.json()
+  }
+
   onMounted(async () => {
     const savedTheme = localStorage.getItem('theme')
     if (savedTheme === 'dark' || savedTheme === 'light') {
@@ -448,9 +490,9 @@ export function useRouteExplorer() {
     const { baseURL } = useRuntimeConfig().app
 
     try {
-      const response = await fetch(`${baseURL}data/routes.json`)
-      if (!response.ok) throw new Error(`Unable to load routes: ${response.status}`)
-      const loadedRoutes = (await response.json()).map(normalizeRouteGeometry)
+      const loadedRoutes = (await loadRoutesJson(`${baseURL}data/routes.json`)).map(
+        normalizeRouteGeometry
+      )
       const validRoutes = loadedRoutes.filter(hasValidRouteGeometry)
       const skippedRoutes = loadedRoutes.filter((route) => !hasValidRouteGeometry(route))
 
