@@ -1,78 +1,126 @@
 # CDO Jeepney Routes
 
-Free public MVP for a Cagayan de Oro LPTRP jeepney route reference map built with Vue 3, Vite, Leaflet, and OpenStreetMap tiles.
+An unofficial, free reference map of Cagayan de Oro's LPTRP jeepney routes, with a
+route browser and a simple trip planner. Built with **Nuxt**, **Vue 3**,
+**Tailwind CSS v4**, **Leaflet**, and OpenStreetMap tiles.
 
-All route data is taken from the [CDO Local Public Transport Route Plan website](https://sites.google.com/view/cdo-routes-lptrp/home?authuser=0).
+> ⚠️ This map shows CDO **Local Public Transport Route Plan reference routes**.
+> Actual jeepney operations may still follow existing/status-quo routes, and the
+> trip planner gives rough geometry-based estimates only. Always verify with
+> jeepney signage, drivers, and current local transport advisories.
 
-This map shows CDO Local Public Transport Route Plan reference routes. Actual jeepney operations may still follow existing/status quo routes. Verify with jeepney signage, drivers, and current local transport advisories.
+All route data comes from the
+[CDO Local Public Transport Route Plan website](https://sites.google.com/view/cdo-routes-lptrp/home?authuser=0)
+and is loaded from the local JSON file at `public/data/routes.json`. There is no
+backend, database, auth, or paid API.
 
-Route data is loaded only from the local JSON file in `public/data/routes.json`. Updates should be proposed through GitHub pull requests. The current dataset is imported from local KML files and route descriptions based on the public CDO LPTRP listings.
+## Features
 
-## Local Development
+- Browse every route on the map; tap a card to focus a route, or open its full
+  details (areas, landmarks, inbound/outbound street lists).
+- Search routes by name, area, or street.
+- Trip planner: pick start/destination (place dropdown or tap the map), then get
+  suggested direct and single-transfer jeepney routes. The search runs in a Web
+  Worker so the UI never freezes.
+- Light/dark theme, responsive layout (sidebar collapses to a mobile drawer).
+
+## Tech & structure
+
+- **Nuxt** (statically prerendered), **Vue 3** `<script setup>`, **Tailwind v4**
+  (utility classes + design tokens), **Leaflet** for the map.
+- Package manager: **pnpm**.
+- Components follow **Atomic Design**:
+
+  ```text
+  assets/quarks/tokens.css   design tokens (Tailwind @theme + dark overrides)
+  components/atoms/          IconButton, UiButton, UiSelect, MenuIcon, …
+  components/molecules/      RouteCard, BaseModal, EmptyState, SidebarTabs, …
+  components/organisms/      RouteSidebar, RouteFinder, MapView, *Modal, …
+  components/templates/      AppShell
+  pages/index.vue            the page (presentation only)
+  composables/               useRouteExplorer.js  (all app state + behaviour)
+  lib/geo/                   geometry + route-finding (incl. finder.worker.js)
+  types/                     shared TypeScript types
+  ```
+
+## Local development
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev          # http://localhost:3000
 ```
 
-## Local Production Build
+Other scripts:
 
 ```bash
-npm run build
-npm run preview
+pnpm build        # production build (what Vercel runs)
+pnpm generate     # static prerender into .output/public
+pnpm preview      # preview a build locally
+pnpm format       # Prettier (write)
+pnpm format:check # Prettier (check)
 ```
 
-## Edit Route Data
+## Fonts
 
-Route seed data lives in `public/data/routes.json`.
+UI text uses a **Helvetica** system stack (no file needed). Headings use the
+**Barabara** display font, loaded from `public/fonts/Barabara.woff`. Barabara is
+licensed for **personal use** — confirm you have the rights before shipping it
+publicly. See `public/fonts/README.md`. If the file is missing, headings fall
+back to Helvetica automatically.
 
-Each route includes metadata, stops, transfer points, inbound and outbound street descriptions, and route geometry used by Leaflet. Fetches use `import.meta.env.BASE_URL` so the JSON file works under the GitHub Pages project path.
+## Route data
 
-## Import Route Data
+Seed data lives in `public/data/routes.json`. Each route includes metadata,
+stops, transfer points, inbound/outbound street descriptions, and the route
+geometry drawn by Leaflet.
 
-Raw source files can be placed under `route-sources/<district>/` with one `route-descriptions.txt` file per district and matching `.kml` files.
-
-Preview an import without changing `routes.json`:
+To regenerate it from raw sources, place files under
+`route-sources/<district>/` — one `route-descriptions.txt` per district plus the
+matching `.kml` files — then:
 
 ```bash
-npm run import:routes:dry
+pnpm import:routes:dry   # preview without writing
+pnpm import:routes       # regenerate public/data/routes.json
 ```
 
-Regenerate `public/data/routes.json` from all raw KML and description files:
+The importer (`scripts/import-routes.js`) tolerates loose formatting in
+`route-descriptions.txt`, matches descriptions to KML files by normalized route
+title, preserves inbound/outbound geometry, and maps states like
+`Not Yet Operational` and `ROUTE STRUCTURE FOR CLARIFICATION` into route
+`status` values.
 
-```bash
-npm run import:routes
-```
+## Deploying to Vercel
 
-The importer accepts loose formatting in `route-descriptions.txt`, matches descriptions to KML files by normalized route title, preserves inbound and outbound geometry, and maps route states such as `Not Yet Operational` and `ROUTE STRUCTURE FOR CLARIFICATION` into route `status` values.
+The project is zero-config on Vercel:
 
-## GitHub Pages Deployment
+1. Push to GitHub.
+2. On Vercel, **import the repository** — it auto-detects Nuxt + pnpm.
+3. Defaults are correct (install `pnpm install`, build `pnpm build`). Deploy.
 
-1. Push the project to a GitHub repository named `cdo-jeepney-routes`.
-2. Go to repository Settings.
-3. Go to Pages.
-4. Set Build and deployment source to GitHub Actions.
-5. Push to `main`.
-6. The workflow will build and deploy automatically.
+Node is pinned to **22** (`.nvmrc`). Every push to `main` redeploys.
 
-The app is configured for GitHub Pages project-site deployment with:
+## Contributing
 
-```js
-base: '/cdo-jeepney-routes/'
-```
+Contributions are welcome — see **[CONTRIBUTING.md](CONTRIBUTING.md)**. Route
+data corrections are especially helpful; please open a pull request describing
+the source for any change.
 
-If the repository name changes, update `base` in `vite.config.js`. If using a custom domain later, `base` may need to be changed to `/`.
+## Limitations
 
-Do not commit `dist` unless intentionally using manual deployment. The GitHub Actions workflow builds and deploys `dist` automatically.
+- Route geometry is imported from KML and may still need field verification.
+- Trip planning uses geometry-based approximations — no timetable, fare,
+  traffic, or service-frequency data.
+- Suggested transfers are based on route-geometry proximity and should be
+  verified with actual jeepney signage and drivers.
 
-## Current Limitations
+## Credits
 
-- Route geometry is imported from local KML files and may still need field verification.
-- Trip planning uses geometry-based approximations, not timetable, fare, traffic, or service-frequency data.
-- Suggested transfers are based on route geometry proximity and should be verified with actual jeepney signage and drivers.
-- No backend, database, auth, or paid APIs are used.
+- Original app by [jrequiroso](https://github.com/jrequiroso/cdo-jeepney-routes).
+- This fork (refreshed design + trip planner) by
+  [adam-ctrlc](https://github.com/adam-ctrlc/cdo-jeepney-routes).
+- Route data: the CDO LPTRP listings (links below). Map tiles: OpenStreetMap.
 
-## Public Seed References
+## References
 
 - https://sites.google.com/view/cdo-routes-lptrp/home?authuser=0
 - https://sites.google.com/view/cdo-routes-lptrp/district-1
