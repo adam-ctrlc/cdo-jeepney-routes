@@ -1,5 +1,10 @@
 # CDO Jeepney Routes
 
+> **Originally created by [jrequiroso](https://github.com/jrequiroso/cdo-jeepney-routes).**
+> Huge thanks to them — they built the original app and turned the city's jeepney
+> route data into a map anyone can use. This repository is a fork that builds on
+> that work; all credit for the original idea and groundwork goes to jrequiroso.
+
 An unofficial, free reference map of Cagayan de Oro's LPTRP jeepney routes, with a
 route browser and a simple trip planner. Built with **Nuxt**, **Vue 3**,
 **Tailwind CSS v4**, **Leaflet**, and OpenStreetMap tiles.
